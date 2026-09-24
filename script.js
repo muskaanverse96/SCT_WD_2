@@ -1,208 +1,82 @@
-const currentDisplay =
-    document.getElementById("currentDisplay");
+// ===============================
+// CALCX — Glass Lab Calculator
+// ===============================
 
-const previousDisplay =
-    document.getElementById("previousDisplay");
+const display = document.getElementById("display");
+const previousDisplay = document.getElementById("previousDisplay");
+const statusText = document.getElementById("statusText");
+const angleMode = document.getElementById("angleMode");
 
-const statusText =
-    document.getElementById("statusText");
+const keypad = document.getElementById("keypad");
+const scientificToggle = document.getElementById("scientificToggle");
+const scientificPanel = document.getElementById("scientificPanel");
 
-const angleText =
-    document.getElementById("angleText");
+const historyButton = document.getElementById("historyButton");
+const historyDrawer = document.getElementById("historyDrawer");
+const closeHistory = document.getElementById("closeHistory");
+const historyList = document.getElementById("historyList");
+const clearHistoryButton = document.getElementById("clearHistory");
 
-const scientificToggle =
-    document.getElementById("scientificToggle");
+const explainButton = document.getElementById("explainButton");
+const explainModal = document.getElementById("explainModal");
+const closeExplain = document.getElementById("closeExplain");
+const explainContent = document.getElementById("explainContent");
 
-const scientificPanel =
-    document.getElementById("scientificPanel");
-
-const angleMode =
-    document.getElementById("angleMode");
+const copyButton = document.getElementById("copyButton");
+const themeButton = document.getElementById("themeButton");
+const toast = document.getElementById("toast");
 
 let expression = "";
 let lastExpression = "";
 let lastResult = "";
 let degreeMode = true;
 
-
-/* =========================
-   HISTORY
-========================= */
-
-let history =
-    JSON.parse(localStorage.getItem("calcxHistory")) || [];
+let history = JSON.parse(localStorage.getItem("calcxHistory")) || [];
 
 
-/* =========================
-   DISPLAY
-========================= */
+// ===============================
+// DISPLAY
+// ===============================
 
 function updateDisplay() {
-    currentDisplay.textContent =
-        expression || "0";
+    display.textContent = expression || "0";
+    previousDisplay.textContent = lastExpression || "";
+}
+
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 1800);
 }
 
 
-function setStatus(text) {
-    statusText.textContent = text;
-}
+// ===============================
+// FACTORIAL
+// ===============================
 
-
-/* =========================
-   INPUT
-========================= */
-
-function addValue(value) {
-
-    expression += value;
-
-    setStatus("EDITING");
-
-    updateDisplay();
-}
-
-
-function clearCalculator() {
-
-    expression = "";
-    lastExpression = "";
-    lastResult = "";
-
-    previousDisplay.textContent = "";
-
-    setStatus("READY");
-
-    updateDisplay();
-}
-
-
-function deleteLast() {
-
-    expression =
-        expression.slice(0, -1);
-
-    setStatus("EDITING");
-
-    updateDisplay();
-}
-
-
-/* =========================
-   SCIENTIFIC
-========================= */
-
-scientificToggle.addEventListener(
-    "click",
-    () => {
-
-        scientificPanel.classList.toggle(
-            "open"
-        );
-
+function factorial(n) {
+    if (!Number.isFinite(n)) {
+        throw new Error("Invalid factorial");
     }
-);
 
-
-scientificPanel.addEventListener(
-    "click",
-    event => {
-
-        const button = event.target;
-
-        if (button.dataset.value) {
-            addValue(button.dataset.value);
-        }
-
+    if (n < 0) {
+        throw new Error("Factorial requires a non-negative number");
     }
-);
 
-
-/* =========================
-   DEG / RAD
-========================= */
-
-angleMode.addEventListener(
-    "click",
-    () => {
-
-        degreeMode = !degreeMode;
-
-        const mode =
-            degreeMode ? "DEG" : "RAD";
-
-        angleMode.textContent = mode;
-        angleText.textContent = mode;
-
+    if (!Number.isInteger(n)) {
+        throw new Error("Factorial requires a whole number");
     }
-);
 
-
-/* =========================
-   KEYPAD
-========================= */
-
-document
-    .querySelector(".keypad")
-    .addEventListener(
-        "click",
-        event => {
-
-            const button =
-                event.target;
-
-            if (button.dataset.value) {
-                addValue(
-                    button.dataset.value
-                );
-            }
-
-            if (
-                button.dataset.action ===
-                "clear"
-            ) {
-                clearCalculator();
-            }
-
-            if (
-                button.dataset.action ===
-                "delete"
-            ) {
-                deleteLast();
-            }
-
-            if (
-                button.dataset.action ===
-                "calculate"
-            ) {
-                calculate();
-            }
-
-        }
-    );
-
-
-/* =========================
-   FACTORIAL
-========================= */
-
-function factorial(number) {
-
-    if (
-        number < 0 ||
-        !Number.isInteger(number)
-    ) {
-        throw new Error(
-            "Invalid factorial"
-        );
+    if (n > 170) {
+        throw new Error("Number too large");
     }
 
     let result = 1;
 
-    for (
-        let i = 2;
-        i <= number;
-        i++
-    ) {
+    for (let i = 2; i <= n; i++) {
         result *= i;
     }
 
@@ -210,442 +84,333 @@ function factorial(number) {
 }
 
 
-/* =========================
-   PREPARE EXPRESSION
-========================= */
+// ===============================
+// DEG / RAD
+// ===============================
 
-function prepareExpression(input) {
+function toRadians(value) {
+    return value * Math.PI / 180;
+}
 
-    let result = input;
+function sin(value) {
+    return degreeMode
+        ? Math.sin(toRadians(value))
+        : Math.sin(value);
+}
 
+function cos(value) {
+    return degreeMode
+        ? Math.cos(toRadians(value))
+        : Math.cos(value);
+}
 
-    /* Constants */
-
-    result =
-        result.replace(
-            /pi/g,
-            "Math.PI"
-        );
-
-    result =
-        result.replace(
-            /\be\b/g,
-            "Math.E"
-        );
-
-
-    /* Functions */
-
-    result =
-        result.replace(
-            /sqrt\(/g,
-            "Math.sqrt("
-        );
-
-    result =
-        result.replace(
-            /log\(/g,
-            "Math.log10("
-        );
-
-    result =
-        result.replace(
-            /ln\(/g,
-            "Math.log("
-        );
-
-
-    /* Power */
-
-    result =
-        result.replace(
-            /\^/g,
-            "**"
-        );
-
-
-    /* Percentage */
-
-    result =
-        result.replace(
-            /(\d+(?:\.\d+)?)%/g,
-            "($1/100)"
-        );
-
-
-    /* Trigonometry */
-
-    if (degreeMode) {
-
-        result =
-            result.replace(
-                /sin\(([^()]*)\)/g,
-                "Math.sin(($1)*Math.PI/180)"
-            );
-
-        result =
-            result.replace(
-                /cos\(([^()]*)\)/g,
-                "Math.cos(($1)*Math.PI/180)"
-            );
-
-        result =
-            result.replace(
-                /tan\(([^()]*)\)/g,
-                "Math.tan(($1)*Math.PI/180)"
-            );
-
-    } else {
-
-        result =
-            result.replace(
-                /sin\(([^()]*)\)/g,
-                "Math.sin($1)"
-            );
-
-        result =
-            result.replace(
-                /cos\(([^()]*)\)/g,
-                "Math.cos($1)"
-            );
-
-        result =
-            result.replace(
-                /tan\(([^()]*)\)/g,
-                "Math.tan($1)"
-            );
-
-    }
-
-
-    /* Factorial */
-
-    while (result.includes("!")) {
-
-        result =
-            result.replace(
-                /(\d+(?:\.\d+)?)!/,
-                "factorial($1)"
-            );
-
-    }
-
-
-    return result;
+function tan(value) {
+    return degreeMode
+        ? Math.tan(toRadians(value))
+        : Math.tan(value);
 }
 
 
-/* =========================
-   VALIDATION
-========================= */
+// ===============================
+// ADD VALUE TO EXPRESSION
+// ===============================
+
+function addToExpression(value) {
+    expression += value;
+    updateDisplay();
+}
+
+
+// ===============================
+// CLEAR
+// ===============================
+
+function clearCalculator() {
+    expression = "";
+    lastExpression = "";
+    lastResult = "";
+
+    statusText.textContent = "READY";
+    updateDisplay();
+
+    explainButton.disabled = true;
+}
+
+
+// ===============================
+// DELETE LAST CHARACTER
+// ===============================
+
+function deleteLast() {
+    expression = expression.slice(0, -1);
+    updateDisplay();
+}
+
+
+// ===============================
+// PREPARE EXPRESSION
+// ===============================
+
+function prepareExpression(input) {
+    let prepared = input;
+
+    // Remove spaces
+    prepared = prepared.replace(/\s+/g, "");
+
+    // Replace constants
+    prepared = prepared.replace(/π/g, "Math.PI");
+    prepared = prepared.replace(/\bpi\b/gi, "Math.PI");
+
+    prepared = prepared.replace(/\be\b/g, "Math.E");
+
+    // Square root
+    prepared = prepared.replace(/√/g, "sqrt");
+
+    // Logarithms
+    prepared = prepared.replace(/\blog\(/gi, "log10(");
+    prepared = prepared.replace(/\bln\(/gi, "ln(");
+
+    // Powers
+    prepared = prepared.replace(/\^/g, "**");
+
+    // Percentage
+    prepared = prepared.replace(/(\d+(?:\.\d+)?)%/g, "($1/100)");
+
+    // Factorial
+    // Supports:
+    // 5!
+    // 10!
+    // 3.0! will correctly fail because factorial needs integer
+    prepared = prepared.replace(
+        /(\d+(?:\.\d+)?)!/g,
+        "factorial($1)"
+    );
+
+    // Trigonometric functions
+    prepared = prepared.replace(/\bsin\(/gi, "sin(");
+    prepared = prepared.replace(/\bcos\(/gi, "cos(");
+    prepared = prepared.replace(/\btan\(/gi, "tan(");
+
+    return prepared;
+}
+
+
+// ===============================
+// VALIDATE EXPRESSION
+// ===============================
 
 function validateExpression(input) {
-
-    if (!input.trim()) {
-        throw new Error("Empty");
+    if (!input) {
+        throw new Error("Enter an expression");
     }
 
+    // Only allow calculator characters
+    const allowedCharacters =
+        /^[0-9+\-*/().,%!^π√\sA-Za-z_]+$/;
 
-    if (
-        !/^[0-9+\-*/%^().,\sA-Za-z_]+$/
-            .test(input)
-    ) {
-        throw new Error("Invalid");
+    if (!allowedCharacters.test(input)) {
+        throw new Error("Invalid characters");
     }
 
-
+    // Check parentheses
     let balance = 0;
 
     for (const char of input) {
-
-        if (char === "(") {
-            balance++;
-        }
-
-        if (char === ")") {
-            balance--;
-        }
+        if (char === "(") balance++;
+        if (char === ")") balance--;
 
         if (balance < 0) {
-            throw new Error(
-                "Parentheses"
-            );
+            throw new Error("Check parentheses");
         }
     }
 
-
     if (balance !== 0) {
-        throw new Error(
-            "Parentheses"
-        );
+        throw new Error("Check parentheses");
     }
-
 }
 
 
-/* =========================
-   CALCULATE
-========================= */
+// ===============================
+// CALCULATE
+// ===============================
 
 function calculate() {
-
-    if (!expression) {
-        return;
-    }
+    if (!expression) return;
 
     try {
+        validateExpression(expression);
 
-        validateExpression(
-            expression
+        const prepared = prepareExpression(expression);
+
+        /*
+         * Important:
+         * factorial, sin, cos and tan are explicitly
+         * passed into Function().
+         */
+        const calculateFunction = Function(
+            "factorial",
+            "sin",
+            "cos",
+            "tan",
+            "sqrt",
+            "log10",
+            "ln",
+            `"use strict"; return (${prepared});`
         );
 
-        const prepared =
-            prepareExpression(
-                expression
-            );
+        const result = calculateFunction(
+            factorial,
+            sin,
+            cos,
+            tan,
+            Math.sqrt,
+            Math.log10,
+            Math.log
+        );
 
-
-        const result =
-            Function(
-                "factorial",
-                `"use strict";
-                 return (${prepared})`
-            )(factorial);
-
-
-        if (!Number.isFinite(result)) {
-            throw new Error(
-                "Invalid calculation"
-            );
+        if (
+            typeof result !== "number" ||
+            !Number.isFinite(result)
+        ) {
+            throw new Error("Invalid result");
         }
 
+        const formattedResult = formatResult(result);
 
-        const formatted =
-            Number.isInteger(result)
-                ? result.toString()
-                : Number(
-                    result.toFixed(10)
-                  ).toString();
+        lastExpression = expression;
+        lastResult = formattedResult;
 
+        expression = formattedResult;
 
-        lastExpression =
-            expression;
+        statusText.textContent = "CALCULATED";
 
-        lastResult =
-            formatted;
+        explainButton.disabled = false;
 
-
-        previousDisplay.textContent =
-            expression + " =";
-
-        expression =
-            formatted;
-
-
-        setStatus("CALCULATED");
+        saveHistory(lastExpression, formattedResult);
 
         updateDisplay();
 
-
-        addHistory(
-            lastExpression,
-            lastResult
-        );
-
-
     } catch (error) {
+        statusText.textContent = "ERROR";
 
-        currentDisplay.textContent =
-            "Error";
-
-        setStatus(
-            "CHECK INPUT"
-        );
-
+        display.textContent = error.message || "Invalid expression";
 
         setTimeout(() => {
-
-            expression = "";
-
-            previousDisplay.textContent =
-                "";
-
-            setStatus("READY");
-
-            updateDisplay();
-
-        }, 1200);
-
+            if (statusText.textContent === "ERROR") {
+                statusText.textContent = "READY";
+                updateDisplay();
+            }
+        }, 1800);
     }
-
 }
 
 
-/* =========================
-   HISTORY
-========================= */
+// ===============================
+// FORMAT RESULT
+// ===============================
 
-function saveHistory() {
+function formatResult(value) {
+    if (Number.isInteger(value)) {
+        return String(value);
+    }
+
+    return Number(value.toFixed(10)).toString();
+}
+
+
+// ===============================
+// HISTORY
+// ===============================
+
+function saveHistory(expressionValue, resultValue) {
+    const item = {
+        expression: expressionValue,
+        result: resultValue,
+        time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+    };
+
+    history.unshift(item);
+
+    if (history.length > 30) {
+        history = history.slice(0, 30);
+    }
 
     localStorage.setItem(
         "calcxHistory",
         JSON.stringify(history)
     );
 
-}
-
-
-function addHistory(
-    expressionValue,
-    resultValue
-) {
-
-    history.unshift({
-
-        expression:
-            expressionValue,
-
-        result:
-            resultValue,
-
-        time:
-            new Date()
-                .toLocaleTimeString(
-                    [],
-                    {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }
-                )
-
-    });
-
-
-    history =
-        history.slice(0, 30);
-
-    saveHistory();
-
     renderHistory();
-
 }
 
+
+// ===============================
+// RENDER HISTORY
+// ===============================
 
 function renderHistory() {
-
-    const list =
-        document.getElementById(
-            "historyList"
-        );
-
+    historyList.innerHTML = "";
 
     if (history.length === 0) {
-
-        list.innerHTML = `
-            <div class="empty-state">
-                <span>∅</span>
-                <p>No calculations yet.</p>
-                <small>
-                    Your calculations will appear here.
-                </small>
+        historyList.innerHTML = `
+            <div class="empty-history">
+                No calculations yet.
             </div>
         `;
-
         return;
     }
 
+    history.forEach((item, index) => {
+        const historyItem = document.createElement("div");
 
-    list.innerHTML =
-        history.map(
-            (item, index) => `
+        historyItem.className = "history-item";
 
-            <div
-                class="history-item"
-                data-index="${index}"
-            >
-
-                <div class="history-expression">
-                    ${escapeHTML(
-                        item.expression
-                    )}
-                </div>
-
-                <div class="history-result">
-                    = ${escapeHTML(
-                        item.result
-                    )}
-                </div>
-
-                <div class="history-time">
-                    ${escapeHTML(
-                        item.time
-                    )}
-                </div>
-
+        historyItem.innerHTML = `
+            <div class="history-expression">
+                ${escapeHTML(item.expression)}
             </div>
 
-        `
-        ).join("");
+            <div class="history-result">
+                = ${escapeHTML(item.result)}
+            </div>
 
+            <div class="history-time">
+                ${escapeHTML(item.time)}
+            </div>
+        `;
+
+        historyItem.addEventListener("click", () => {
+            expression = item.expression;
+            lastExpression = "";
+            statusText.textContent = "HISTORY";
+
+            updateDisplay();
+            closeHistoryDrawer();
+        });
+
+        historyList.appendChild(historyItem);
+    });
 }
 
 
-/* =========================
-   HISTORY DRAWER
-========================= */
+// ===============================
+// HISTORY DRAWER
+// ===============================
 
-const historyBtn =
-    document.getElementById(
-        "historyBtn"
-    );
-
-const historyDrawer =
-    document.getElementById(
-        "historyDrawer"
-    );
-
-const closeHistory =
-    document.getElementById(
-        "closeHistory"
-    );
-
-const drawerOverlay =
-    document.getElementById(
-        "drawerOverlay"
-    );
-
-
-function openHistory() {
-
-    renderHistory();
-
-    historyDrawer.classList.add(
-        "open"
-    );
-
-    drawerOverlay.classList.add(
-        "open"
-    );
-
+function openHistoryDrawer() {
+    historyDrawer.classList.add("open");
 }
-
 
 function closeHistoryDrawer() {
-
-    historyDrawer.classList.remove(
-        "open"
-    );
-
-    drawerOverlay.classList.remove(
-        "open"
-    );
-
+    historyDrawer.classList.remove("open");
 }
 
-
-historyBtn.addEventListener(
+historyButton.addEventListener(
     "click",
-    openHistory
+    openHistoryDrawer
 );
 
 closeHistory.addEventListener(
@@ -653,461 +418,420 @@ closeHistory.addEventListener(
     closeHistoryDrawer
 );
 
-drawerOverlay.addEventListener(
-    "click",
-    closeHistoryDrawer
-);
-
-
-/* =========================
-   REUSE HISTORY
-========================= */
-
-document
-    .getElementById("historyList")
-    .addEventListener(
-        "click",
-        event => {
-
-            const item =
-                event.target.closest(
-                    ".history-item"
-                );
-
-            if (!item) {
-                return;
-            }
-
-
-            const selected =
-                history[
-                    Number(
-                        item.dataset.index
-                    )
-                ];
-
-
-            expression =
-                selected.expression;
-
-            previousDisplay.textContent =
-                "";
-
-            setStatus("RELOADED");
-
-            updateDisplay();
-
-            closeHistoryDrawer();
-
-        }
-    );
-
-
-/* =========================
-   CLEAR HISTORY
-========================= */
-
-document
-    .getElementById("clearHistory")
-    .addEventListener(
-        "click",
-        () => {
-
-            history = [];
-
-            saveHistory();
-
-            renderHistory();
-
-        }
-    );
-
-
-/* =========================
-   EXPLAIN
-========================= */
-
-const explainModal =
-    document.getElementById(
-        "explainModal"
-    );
-
-const explainContent =
-    document.getElementById(
-        "explainContent"
-    );
-
-
-document
-    .getElementById("explainBtn")
-    .addEventListener(
-        "click",
-        () => {
-
-            if (
-                !lastExpression ||
-                !lastResult
-            ) {
-
-                showToast(
-                    "Calculate something first"
-                );
-
-                return;
-            }
-
-
-            let explanation =
-                "The expression is evaluated using standard arithmetic rules.";
-
-
-            if (
-                lastExpression.includes("+")
-            ) {
-
-                explanation =
-                    "Addition combines the values using the + operator.";
-
-            }
-
-            else if (
-                lastExpression.includes("-")
-            ) {
-
-                explanation =
-                    "Subtraction finds the difference between the values.";
-
-            }
-
-            else if (
-                lastExpression.includes("*")
-            ) {
-
-                explanation =
-                    "Multiplication combines the values.";
-
-            }
-
-            else if (
-                lastExpression.includes("/")
-            ) {
-
-                explanation =
-                    "Division divides one value by another.";
-
-            }
-
-            else if (
-                lastExpression.includes("sqrt(")
-            ) {
-
-                explanation =
-                    "The square-root function finds the number that produces the input when multiplied by itself.";
-
-            }
-
-            else if (
-                lastExpression.includes("sin(")
-            ) {
-
-                explanation =
-                    `Sine was calculated in ${
-                        degreeMode
-                            ? "degree"
-                            : "radian"
-                    } mode.`;
-
-            }
-
-            else if (
-                lastExpression.includes("cos(")
-            ) {
-
-                explanation =
-                    `Cosine was calculated in ${
-                        degreeMode
-                            ? "degree"
-                            : "radian"
-                    } mode.`;
-
-            }
-
-            else if (
-                lastExpression.includes("tan(")
-            ) {
-
-                explanation =
-                    `Tangent was calculated in ${
-                        degreeMode
-                            ? "degree"
-                            : "radian"
-                    } mode.`;
-
-            }
-
-            else if (
-                lastExpression.includes("^")
-            ) {
-
-                explanation =
-                    "The base is raised to the specified exponent.";
-
-            }
-
-            else if (
-                lastExpression.includes("!")
-            ) {
-
-                explanation =
-                    "Factorial multiplies all positive integers up to the given number.";
-
-            }
-
-
-            explainContent.innerHTML = `
-
-                <div class="explain-expression">
-                    ${escapeHTML(
-                        lastExpression
-                    )}
-                </div>
-
-                <div class="explain-step">
-                    ${escapeHTML(
-                        explanation
-                    )}
-                </div>
-
-                <div class="explain-answer">
-                    Answer: ${escapeHTML(
-                        lastResult
-                    )}
-                </div>
-
-            `;
-
-
-            explainModal.classList.remove(
-                "hidden"
-            );
-
-        }
-    );
-
-
-function closeExplainModal() {
-
-    explainModal.classList.add(
-        "hidden"
-    );
-
-}
-
-
-document
-    .getElementById("closeExplain")
-    .addEventListener(
-        "click",
-        closeExplainModal
-    );
-
-
-document
-    .getElementById("closeExplainBottom")
-    .addEventListener(
-        "click",
-        closeExplainModal
-    );
-
-
-/* =========================
-   COPY
-========================= */
-
-document
-    .getElementById("copyBtn")
-    .addEventListener(
-        "click",
-        async () => {
-
-            const value =
-                currentDisplay.textContent;
-
-            if (
-                !value ||
-                value === "0" ||
-                value === "Error"
-            ) {
-
-                showToast(
-                    "Nothing to copy"
-                );
-
-                return;
-            }
-
-
-            try {
-
-                await navigator.clipboard
-                    .writeText(value);
-
-                showToast(
-                    "Answer copied"
-                );
-
-            } catch {
-
-                showToast(
-                    "Copy unavailable"
-                );
-
-            }
-
-        }
-    );
-
-
-/* =========================
-   THEME
-========================= */
-
-const themeBtn =
-    document.getElementById(
-        "themeBtn"
-    );
-
-
-themeBtn.addEventListener(
+clearHistoryButton.addEventListener(
     "click",
     () => {
+        history = [];
 
-        document.body.classList.toggle(
-            "light"
-        );
+        localStorage.removeItem("calcxHistory");
 
-        const isLight =
-            document.body.classList.contains(
-                "light"
-            );
+        renderHistory();
 
-        localStorage.setItem(
-            "calcxTheme",
-            isLight
-                ? "light"
-                : "dark"
-        );
-
-        themeBtn.textContent =
-            isLight
-                ? "☀"
-                : "◐";
-
+        showToast("History cleared");
     }
 );
 
 
-/* =========================
-   KEYBOARD
-========================= */
+// ===============================
+// SCIENTIFIC PANEL
+// ===============================
 
-document.addEventListener(
-    "keydown",
-    event => {
+scientificToggle.addEventListener("click", () => {
+    scientificPanel.classList.toggle("open");
 
-        const key =
-            event.key;
+    scientificToggle.classList.toggle("active");
+});
 
 
-        if (
-            /^[0-9.]$/.test(key)
-        ) {
+// ===============================
+// DEG / RAD
+// ===============================
 
-            addValue(key);
+angleMode.addEventListener("click", () => {
+    degreeMode = !degreeMode;
 
-        }
+    angleMode.textContent =
+        degreeMode ? "DEG" : "RAD";
 
-        else if (
-            [
-                "+",
-                "-",
-                "*",
-                "/",
-                "%",
-                "(",
-                ")",
-                "^"
-            ].includes(key)
-        ) {
+    showToast(
+        degreeMode
+            ? "Degree mode"
+            : "Radian mode"
+    );
+});
 
-            addValue(key);
 
-        }
+// ===============================
+// BASIC KEYPAD
+// ===============================
 
-        else if (
-            key === "Enter" ||
-            key === "="
-        ) {
+keypad.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
 
-            event.preventDefault();
+    if (!button) return;
 
-            calculate();
+    const value = button.dataset.value;
+    const action = button.dataset.action;
 
-        }
-
-        else if (
-            key === "Backspace"
-        ) {
-
-            deleteLast();
-
-        }
-
-        else if (
-            key === "Escape"
-        ) {
-
-            clearCalculator();
-
-        }
-
+    if (action === "clear") {
+        clearCalculator();
+        return;
     }
-);
+
+    if (action === "delete") {
+        deleteLast();
+        return;
+    }
+
+    if (action === "calculate") {
+        calculate();
+        return;
+    }
+
+    if (value !== undefined) {
+        addToExpression(value);
+    }
+});
 
 
-/* =========================
-   HELPER
-========================= */
+// ===============================
+// SCIENTIFIC BUTTONS
+// ===============================
 
-function escapeHTML(value) {
+scientificPanel.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+    if (!button) return;
 
-}
+    const value = button.dataset.value;
+    const action = button.dataset.action;
+
+    if (action === "calculate") {
+        calculate();
+        return;
+    }
+
+    if (action === "clear") {
+        clearCalculator();
+        return;
+    }
+
+    if (action === "delete") {
+        deleteLast();
+        return;
+    }
+
+    if (value !== undefined) {
+        addToExpression(value);
+    }
+});
 
 
-/* =========================
-   INITIALIZE
-========================= */
+// ===============================
+// EXPLAIN
+// ===============================
 
-if (
-    localStorage.getItem(
-        "calcxTheme"
-    ) === "light"
-) {
+explainButton.addEventListener("click", () => {
+    if (!lastExpression || !lastResult) {
+        showToast("Calculate something first");
+        return;
+    }
 
-    document.body.classList.add(
-        "light"
+    generateExplanation(
+        lastExpression,
+        lastResult
     );
 
-    themeBtn.textContent = "☀";
+    explainModal.classList.add("open");
+});
 
+
+closeExplain.addEventListener(
+    "click",
+    () => {
+        explainModal.classList.remove("open");
+    }
+);
+
+
+explainModal.addEventListener("click", (event) => {
+    if (event.target === explainModal) {
+        explainModal.classList.remove("open");
+    }
+});
+
+
+// ===============================
+// EXPLANATION GENERATOR
+// ===============================
+
+function generateExplanation(expressionValue, resultValue) {
+    let explanation = "";
+
+    if (expressionValue.includes("!")) {
+        const number = expressionValue.replace("!", "");
+
+        explanation = `
+            <h3>Factorial</h3>
+            <p>
+                The factorial of ${escapeHTML(number)}
+                is calculated by multiplying all positive
+                integers from 1 up to that number.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(number)}! = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    else if (
+        expressionValue.includes("+")
+    ) {
+        explanation = `
+            <h3>Addition</h3>
+            <p>
+                The calculator adds the values in the
+                expression and displays the final result.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(expressionValue)}
+                = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    else if (
+        expressionValue.includes("-")
+    ) {
+        explanation = `
+            <h3>Subtraction</h3>
+            <p>
+                The calculator subtracts the values
+                according to the given expression.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(expressionValue)}
+                = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    else if (
+        expressionValue.includes("*") ||
+        expressionValue.includes("×")
+    ) {
+        explanation = `
+            <h3>Multiplication</h3>
+            <p>
+                The calculator multiplies the given
+                values according to standard arithmetic
+                precedence.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(expressionValue)}
+                = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    else if (
+        expressionValue.includes("/") ||
+        expressionValue.includes("÷")
+    ) {
+        explanation = `
+            <h3>Division</h3>
+            <p>
+                The calculator divides the values in
+                the expression and returns the result.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(expressionValue)}
+                = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    else {
+        explanation = `
+            <h3>Calculation</h3>
+
+            <p>
+                The expression was parsed and evaluated
+                using JavaScript arithmetic and the
+                selected calculator functions.
+            </p>
+
+            <div class="explain-result">
+                ${escapeHTML(expressionValue)}
+                = ${escapeHTML(resultValue)}
+            </div>
+        `;
+    }
+
+    explainContent.innerHTML = explanation;
 }
+
+
+// ===============================
+// COPY RESULT
+// ===============================
+
+copyButton.addEventListener("click", async () => {
+    if (!lastResult && !expression) {
+        showToast("Nothing to copy");
+        return;
+    }
+
+    const valueToCopy =
+        lastResult || expression;
+
+    try {
+        await navigator.clipboard.writeText(
+            valueToCopy
+        );
+
+        showToast("Result copied");
+    } catch {
+        showToast("Copy failed");
+    }
+});
+
+
+// ===============================
+// THEME
+// ===============================
+
+themeButton.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+
+    const isLight =
+        document.body.classList.contains("light");
+
+    localStorage.setItem(
+        "calcxTheme",
+        isLight ? "light" : "dark"
+    );
+
+    themeButton.textContent =
+        isLight ? "☀" : "☾";
+});
+
+
+// Load saved theme
+if (
+    localStorage.getItem("calcxTheme") === "light"
+) {
+    document.body.classList.add("light");
+    themeButton.textContent = "☀";
+}
+
+
+// ===============================
+// KEYBOARD SUPPORT
+// ===============================
+
+document.addEventListener("keydown", (event) => {
+    const key = event.key;
+
+    // Numbers
+    if (/^[0-9]$/.test(key)) {
+        addToExpression(key);
+        return;
+    }
+
+    // Decimal
+    if (key === ".") {
+        addToExpression(".");
+        return;
+    }
+
+    // Operators
+    if (
+        key === "+" ||
+        key === "-" ||
+        key === "*" ||
+        key === "/" ||
+        key === "^"
+    ) {
+        addToExpression(key);
+        return;
+    }
+
+    // Parentheses
+    if (key === "(" || key === ")") {
+        addToExpression(key);
+        return;
+    }
+
+    // Percentage
+    if (key === "%") {
+        addToExpression("%");
+        return;
+    }
+
+    // Factorial
+    if (key === "!") {
+        addToExpression("!");
+        return;
+    }
+
+    // Enter
+    if (key === "Enter" || key === "=") {
+        event.preventDefault();
+        calculate();
+        return;
+    }
+
+    // Backspace
+    if (key === "Backspace") {
+        deleteLast();
+        return;
+    }
+
+    // Escape
+    if (key === "Escape") {
+        clearCalculator();
+    }
+});
+
+
+// ===============================
+// ESCAPE HTML
+// ===============================
+
+function escapeHTML(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ===============================
+// INITIALIZE
+// ===============================
 
 renderHistory();
 updateDisplay();
+
+statusText.textContent = "READY";
+angleMode.textContent = "DEG";
+
+
+// ===============================
+// CLOSE DRAWER WITH ESCAPE
+// ===============================
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        historyDrawer.classList.remove("open");
+        explainModal.classList.remove("open");
+    }
+});

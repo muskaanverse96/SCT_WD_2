@@ -6,178 +6,176 @@
     <title>CALCX — Glass Lab</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<div class="ambient ambient-one"></div>
-<div class="ambient ambient-two"></div>
-<main class="app-shell">
+
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <!-- TOP BAR -->
     <header class="topbar">
-        <div class="brand-wrap">
-            <div class="brand-mark">∑</div>
+        <div class="brand">
+            <span class="brand-icon">∑</span>
             <div>
-                <div class="brand">CALCX</div>
-                <div class="brand-subtitle">GLASS LAB</div>
+                <h1>CALCX</h1>
+                <span>GLASS LAB</span>
             </div>
         </div>
+
         <div class="top-actions">
-            <button id="historyBtn" class="small-btn">
+            <button id="historyButton" class="top-button">
                 ↺ History
             </button>
-            <button id="themeBtn" class="icon-btn">
-                ◐
+
+            <button id="themeButton" class="top-button">
+                ☾
             </button>
         </div>
     </header>
-    <section class="calculator-card">
 
-        <!-- DISPLAY -->
-        <div class="display-area">
-            <div class="status-row">
-                <span id="statusText">READY</span>
-                <span id="angleText">DEG</span>
-            </div>
-            <div id="previousDisplay" class="previous-display"></div>
-            <div id="currentDisplay" class="current-display">
-                0
-            </div>
-            <div class="display-actions">
-                <button id="explainBtn" class="text-btn">
-                    Explain
-                </button>
-                <button id="copyBtn" class="text-btn">
-                    Copy
-                </button>
-            </div>
-        </div>
 
-        <!-- SCIENTIFIC TOGGLE -->
-        <button id="scientificToggle" class="scientific-toggle">
-            <span>Scientific</span>
-            <span id="scientificArrow">
-                ⌄
-            </span>
-        </button>
+    <!-- MAIN -->
+    <main class="calculator-wrapper">
 
-        <!-- SCIENTIFIC FUNCTIONS -->
-        <section id="scientificPanel" class="scientific-panel">
-            <button data-value="(">(</button>
-            <button data-value=")">)</button>
-            <button data-value="sin(">sin</button>
-            <button data-value="cos(">cos</button>
-            <button data-value="tan(">tan</button>
-            <button data-value="log(">log</button>
-            <button data-value="ln(">ln</button>
-            <button data-value="sqrt(">√</button>
-            <button data-value="^">xʸ</button>
-            <button data-value="!">x!</button>
-            <button data-value="pi">π</button>
-            <button data-value="e">e</button>
-            <button id="angleMode">
-                DEG
+        <section class="calculator">
+
+            <!-- DISPLAY -->
+            <div class="display-container">
+
+                <div class="display-top">
+                    <span id="statusText">READY</span>
+                    <button id="angleMode" class="angle-button">DEG</button>
+                </div>
+
+                <div id="previousDisplay" class="previous-display"></div>
+
+                <div id="display" class="display">
+                    0
+                </div>
+
+                <div class="display-actions">
+                    <button id="explainButton" disabled>
+                        Explain
+                    </button>
+
+                    <button id="copyButton">
+                        Copy
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- SCIENTIFIC TOGGLE -->
+            <button id="scientificToggle" class="scientific-toggle">
+                <span>Scientific</span>
+                <span>⌄</span>
             </button>
+
+
+            <!-- SCIENTIFIC PANEL -->
+            <div id="scientificPanel" class="scientific-panel">
+
+                <button data-value="sin(">sin</button>
+                <button data-value="cos(">cos</button>
+                <button data-value="tan(">tan</button>
+
+                <button data-value="log(">log</button>
+                <button data-value="ln(">ln</button>
+                <button data-value="sqrt(">√</button>
+
+                <button data-value="(">(</button>
+                <button data-value=")">)</button>
+                <button data-value="^">xʸ</button>
+
+                <button data-value="π">π</button>
+                <button data-value="e">e</button>
+                <button data-value="!">x!</button>
+
+            </div>
+
+
+            <!-- BASIC KEYPAD -->
+            <div id="keypad" class="keypad">
+
+                <button class="function" data-action="clear">AC</button>
+                <button class="function" data-action="delete">⌫</button>
+                <button class="function" data-value="%">%</button>
+                <button class="operator" data-value="/">÷</button>
+
+                <button data-value="7">7</button>
+                <button data-value="8">8</button>
+                <button data-value="9">9</button>
+                <button class="operator" data-value="*">×</button>
+
+                <button data-value="4">4</button>
+                <button data-value="5">5</button>
+                <button data-value="6">6</button>
+                <button class="operator" data-value="-">−</button>
+
+                <button data-value="1">1</button>
+                <button data-value="2">2</button>
+                <button data-value="3">3</button>
+                <button class="operator" data-value="+">+</button>
+
+                <button data-value="0" class="zero">0</button>
+                <button data-value=".">.</button>
+                <button class="equals" data-action="calculate">=</button>
+
+            </div>
+
         </section>
 
-        <!-- MAIN KEYPAD -->
-        <section class="keypad">
-            <button class="utility" data-action="clear">
-                AC
-            </button>
-            <button class="utility" data-action="delete">
-                DEL
-            </button>
-            <button class="operator" data-value="%">
-                %
-            </button>
-            <button class="operator" data-value="/">
-                ÷
-            </button>
-            <button data-value="7">7</button>
-            <button data-value="8">8</button>
-            <button data-value="9">9</button>
-            <button class="operator" data-value="*">
-                ×
-            </button>
-            <button data-value="4">4</button>
-            <button data-value="5">5</button>
-            <button data-value="6">6</button>
-            <button class="operator" data-value="-">
-                −
-            </button>
-            <button data-value="1">1</button>
-            <button data-value="2">2</button>
-            <button data-value="3">3</button>
-            <button class="operator" data-value="+">
-                +
-            </button>
-            <button class="zero" data-value="0">
-                0
-            </button>
-            <button data-value=".">
-                .
-            </button>
-            <button class="equals" data-action="calculate">
-                =
-            </button>
-        </section>
-    </section>
-    <footer class="footer">
-        <span>CALCX</span>
-        <span>Keyboard ready</span>
-    </footer>
-</main>
+    </main>
 
-<!-- HISTORY DRAWER -->
-<aside id="historyDrawer" class="drawer">
-    <div class="drawer-header">
-        <div>
-            <p class="drawer-kicker">
-                MEMORY
-            </p>
-            <h2>
-                Calculation Timeline
-            </h2>
-        </div>
-        <button id="closeHistory" class="close-btn">
-            ×
-        </button>
-    </div>
-    <div id="historyList" class="history-list">
-        <div class="empty-state">
-            <span>∅</span>
-            <p>
-                No calculations yet.
-            </p>
-            <small>
-                Your calculations will appear here.
-            </small>
-        </div>
-    </div>
-    <button id="clearHistory" class="clear-history">
-        Clear History
-    </button>
-</aside>
-<div id="drawerOverlay" class="drawer-overlay"></div>
 
-<!-- EXPLAIN MODAL -->
-<div id="explainModal" class="modal hidden">
-    <div class="modal-card">
-        <button id="closeExplain" class="close-btn modal-close">
-            ×
+    <!-- HISTORY DRAWER -->
+    <aside id="historyDrawer" class="history-drawer">
+
+        <div class="drawer-header">
+            <div>
+                <h2>Calculation Timeline</h2>
+                <p>Your recent calculations</p>
+            </div>
+
+            <button id="closeHistory">×</button>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+
+        <button id="clearHistory" class="clear-history">
+            Clear History
         </button>
-        <p class="drawer-kicker">
-            SMART EXPLAIN
-        </p>
-        <h2>
-            How it was calculated
-        </h2>
-        <div id="explainContent" class="explain-content"></div>
-        <button id="closeExplainBottom" class="modal-done">
-            Done
-        </button>
+
+    </aside>
+
+
+    <!-- EXPLAIN MODAL -->
+    <div id="explainModal" class="modal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <div>
+                    <h2>Calculation Explained</h2>
+                    <p>Understanding your result</p>
+                </div>
+
+                <button id="closeExplain">×</button>
+            </div>
+
+            <div id="explainContent" class="explain-content"></div>
+
+        </div>
+
     </div>
-</div>
-<div id="toast" class="toast">
-    Copied
-</div>
-<script src="script.js"></script>
+
+
+    <!-- TOAST -->
+    <div id="toast" class="toast"></div>
+
+
+    <script src="script.js"></script>
+
 </body>
 </html>
