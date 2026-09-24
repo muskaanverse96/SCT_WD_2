@@ -298,7 +298,9 @@ button {
     padding: 12px 5px;
 }
 
+
 /* HISTORY */
+
 .drawer-overlay {
     position: fixed;
     inset: 0;
@@ -421,6 +423,7 @@ button {
     cursor: pointer;
 }
 
+
 /* EXPLAIN */
 
 .modal {
@@ -495,27 +498,35 @@ button {
     transform: translate(-50%,0);
 }
 
+
 /* MOBILE */
+
 @media (max-width:480px) {
+
     .app-shell {
         padding: 13px 9px;
     }
+
     .calculator-card {
         padding: 10px;
         border-radius: 22px;
     }
+
     .display-area {
         min-height: 158px;
         padding: 14px;
     }
+
     .keypad {
         gap: 7px;
     }
+
     .keypad button {
         height: 58px;
         border-radius: 13px;
         font-size: 19px;
     }
+
     .scientific-panel button {
         height: 39px;
         font-size: 12px;
@@ -523,13 +534,16 @@ button {
 }
 
 @media (max-width:340px) {
+
     .keypad button {
         height: 52px;
         font-size: 17px;
     }
+
     .display-area {
         min-height: 145px;
     }
+
     .brand {
         font-size: 16px;
     }
